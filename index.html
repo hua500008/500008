@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>花非花</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, "Microsoft JhengHei", sans-serif; background-color: #ffffff; color: #000000; padding: 24px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        h1 { font-size: 32px; font-weight: bold; color: #111827; }
+        .login-area { position: relative; }
+        .login-btn { background-color: #2563eb; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; }
+        .login-btn:hover { background-color: #1d4ed8; }
+        .user-menu { display: flex; align-items: center; gap: 12px; }
+        .user-name { font-size: 14px; color: #374151; font-weight: 500; }
+        .logout-btn { background-color: #ef4444; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; }
+        .logout-btn:hover { background-color: #dc2626; }
+        .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; margin-top: 8px; background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); padding: 16px; width: 300px; z-index: 1000; }
+        .dropdown-menu.show { display: block; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .submit-btn { width: 100%; background-color: #2563eb; color: white; padding: 8px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; margin-top: 4px; }
+        .submit-btn:hover { background-color: #1d4ed8; }
+        .tabs { display: flex; gap: 8px; border-bottom: 1px solid #e5e7eb; margin-bottom: 24px; padding-bottom: 1px; }
+        .tab-btn { padding: 8px 16px; border: none; background: none; font-size: 14px; font-weight: 500; color: #4b5563; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; }
+        .tab-btn:hover { color: #111827; }
+        .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .section-title { font-size: 20px; font-weight: bold; color: #111827; display: flex; align-items: center; gap: 8px; }
+        .add-btn { background-color: #10b981; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 4px; }
+        .add-btn:hover { background-color: #059669; }
+        .add-btn:disabled { background-color: #9ca3af; cursor: not-allowed; }
+        .search-container { display: flex; gap: 12px; margin-bottom: 16px; background: #f9fafb; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb; align-items: center; flex-wrap: wrap; }
+        .search-group { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #4b5563; }
+        .search-group input, .search-group select { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: white; }
+        table { width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; }
+        th { background-color: #f9fafb; font-size: 12px; font-weight: 600; color: #4b5563; text-transform: uppercase; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; }
+        td { padding: 16px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #111827; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        .center { text-align: center; }
+        .flower-tag { display: inline-block; background-color: #eff6ff; color: #1e40af; padding: 2px 8px; border-radius: 9999px; font-size: 12px; margin-right: 4px; margin-bottom: 4px; font-weight: 500; }
+        .actions { display: flex; gap: 8px; }
+        .actions button, .flower-actions button, .card-actions button { padding: 6px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .actions button:hover, .flower-actions button:hover, .card-actions button:hover { background: #f9fafb; border-color: #d1d5db; }
+        .actions button:disabled, .flower-actions button:disabled, .card-actions button:disabled { opacity: 0.5; cursor: not-allowed; background: #f3f4f6 !important; }
+        .edit-btn:hover { color: #2563eb; }
+        .delete-btn:hover { color: #ef4444; }
+        .form-row td { background-color: #f9fafb; padding: 0; }
+        .form-container { padding: 20px; border-bottom: 1px solid #e5e7eb; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .form-buttons { display: flex; gap: 8px; justify-content: flex-end; }
+        .save-btn { background-color: #2563eb; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; }
+        .save-btn:hover { background-color: #1d4ed8; }
+        .form-cancel-btn { background-color: white; color: #374151; padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; }
+        .form-cancel-btn:hover { background: #f3f4f6; }
+        .clickable-link { color: #2563eb; cursor: pointer; text-decoration: none; font-weight: 500; }
+        .clickable-link:hover { text-decoration: underline; }
+        .flower-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+        .flower-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; text-align: center; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .flower-icon { font-size: 32px; margin-bottom: 8px; }
+        .flower-name { font-size: 16px; font-weight: bold; color: #111827; margin-bottom: 4px; }
+        .flower-count { font-size: 13px; color: #6b7280; margin-bottom: 12px; }
+        .flower-actions { display: flex; gap: 8px; justify-content: center; }
+        .guild-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .guild-card { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); position: relative; }
+        .guild-name { font-size: 16px; font-weight: bold; color: #111827; }
+        .guild-info { font-size: 14px; color: #4b5563; display: flex; flex-direction: column; gap: 4px; }
+        .card-actions { display: flex; gap: 8px; margin-top: auto; justify-content: flex-end; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; border-radius: 8px; padding: 24px; width: 90%; max-width: 500px; max-height: 80vh; display: flex; flex-direction: column; }
+        .modal-header { font-size: 18px; font-weight: bold; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #9ca3af; }
+        .modal-close:hover { color: #4b5563; }
+        .search-box { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 12px; font-size: 14px; }
+        .checkbox-list { overflow-y: auto; flex: 1; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px; margin-bottom: 16px; }
+        .checkbox-item { display: flex; align-items: center; gap: 8px; padding: 6px 4px; cursor: pointer; }
+        .checkbox-item:hover { background: #f9fafb; }
+        .checkbox-item input { cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌸 花非花</h1>
+            <div class="login-area" id="login-area">
+                <button class="login-btn" onclick="toggleLoginDropdown()">🔑 管理員登入</button>
+                <div class="dropdown-menu" id="login-dropdown">
+                    <form onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label for="password">請輸入管理員密碼</label>
+                            <input type="password" id="password" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="submit-btn">確認登入</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('members')">👥 成員名單</button>
+            <button class="tab-btn" onclick="switchTab('flowers')">🌹 花朵管理</button>
+            <button class="tab-btn" onclick="switchTab('competitions')">🏆 本週競賽</button>
+            <button class="tab-btn" onclick="switchTab('guilds')">🏰 公會管理</button>
+        </div>
+
+        <div id="tab-members" class="tab-content active">
+            <div class="section-header">
+                <div class="section-title">👥 成員管理</div>
+                <button class="add-btn" id="add-member-btn" onclick="showMemberForm()" disabled>➕ 新增成員</button>
+            </div>
+            
+            <div class="search-container">
+                <div class="search-group">
+                    <label>搜尋名字：</label>
+                    <input type="text" id="search-member-name" placeholder="輸入名字..." oninput="searchTable('members')">
+                </div>
+                <div class="search-group">
+                    <label>篩選公會：</label>
+                    <select id="search-member-guild" onchange="searchTable('members')">
+                        <option value="">全部公會</option>
+                    </select>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>遊戲名稱</th>
+                        <th>遊戲ID</th>
+                        <th>公會</th>
+                        <th class="center">擁有花</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="members-table"></tbody>
+            </table>
+        </div>
+
+        <div id="tab-flowers" class="tab-content">
+            <div class="section-header">
+                <div class="section-title">🌹 花朵清單</div>
+                <button class="add-btn" id="add-flower-btn" onclick="showFlowerForm()" disabled>➕ 新增花朵</button>
+            </div>
+            <div class="flower-grid" id="flowers-grid"></div>
+        </div>
+
+        <div id="tab-competitions" class="tab-content">
+            <div class="section-header">
+                <div class="section-title">🏆 競賽紀錄</div>
+                <button class="add-btn" id="add-competition-btn" onclick="showCompetitionForm()" disabled>➕ 新增紀錄</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>成員名稱</th>
+                        <th>使用花朵</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="competitions-table"></tbody>
+            </table>
+        </div>
+
+        <div id="tab-guilds" class="tab-content">
+            <div class="section-header">
+                <div class="section-title">🏰 公會管理</div>
+                <button class="add-btn" id="add-guild-btn" onclick="showGuildForm()" disabled>➕ 新增公會</button>
+            </div>
+            <div class="guild-grid" id="guilds-grid"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="distribute-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="modal-title">分配花朵擁有者</span>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <input type="text" class="search-box" placeholder="搜尋成員名字..." oninput="filterDistributeList(this)">
+            <div style="margin-bottom:8px; font-size:13px;">
+                <label><input type="checkbox" id="toggle-all-dist" onclick="toggleAllDistribute(this.checked)"> 全選 / 全不選 (僅限可見項目)</label>
+            </div>
+            <div class="checkbox-list" id="distribute-list"></div>
+            <div class="form-buttons">
+                <button class="form-cancel-btn" onclick="closeModal()">取消</button>
+                <button class="save-btn" id="modal-save-btn">儲存變更</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="detail-modal-title">成員花朵詳細資料</span>
+                <button class="modal-close" onclick="closeDetailModal()">✕</button>
+            </div>
+            <div id="detail-modal-content" style="overflow-y:auto; flex:1; margin-bottom:16px;"></div>
+            <div class="form-buttons">
+                <button class="save-btn" onclick="closeDetailModal()">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ 請更換成您自己部署的 Google Apps Script 雲端網址
+        const API_URL = "https://script.google.com/macros/s/AKfycbxuWHTrw_r1PHzNHTgnt5LTavhDLLhcP57OqNAOyUGmBT5vCjOpzYGzrA4M2iGGGf0V/exec";
+
+        let members = [];
+        let flowers = [];
+        let competitions = [];
+        let guilds = [];
+        let isAuthenticated = false;
+        let currentTab = 'members';
+
+        async function init() {
+            checkLoginStatus();
+            await loadData();
+        }
+
+        function checkLoginStatus() {
+            const token = localStorage.getItem('admin_token');
+            if (token === 'true') {
+                isAuthenticated = true;
+                updateLoginUI('管理員');
+            } else {
+                isAuthenticated = false;
+                updateLoginUI(null);
+            }
+            toggleAdminButtons();
+        }
+
+        function toggleLoginDropdown() {
+            document.getElementById('login-dropdown').classList.toggle('show');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const password = document.getElementById('password').value;
+            if (password === "admin") {
+                localStorage.setItem('admin_token', 'true');
+                isAuthenticated = true;
+                updateLoginUI('管理員');
+                toggleAdminButtons();
+                document.getElementById('password').value = '';
+                toggleLoginDropdown();
+                renderAll();
+            } else {
+                alert('密碼錯誤！');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            isAuthenticated = false;
+            updateLoginUI(null);
+            toggleAdminButtons();
+            renderAll();
+        }
+
+        function updateLoginUI(user) {
+            const area = document.getElementById('login-area');
+            if (user) {
+                area.innerHTML = `
+                    <div class="user-menu">
+                        <span class="user-name">👋 ${user}</span>
+                        <button class="logout-btn" onclick="handleLogout()">登出</button>
+                    </div>
+                `;
+            } else {
+                area.innerHTML = `
+                    <button class="login-btn" onclick="toggleLoginDropdown()">🔑 管理員登入</button>
+                    <div class="dropdown-menu" id="login-dropdown">
+                        <form onsubmit="handleLogin(event)">
+                            <div class="form-group">
+                                <label for="password">請輸入管理員密碼</label>
+                                <input type="password" id="password" required placeholder="••••••••">
+                            </div>
+                            <button type="submit" class="submit-btn">確認登入</button>
+                        </form>
+                    </div>
+                `;
+            }
+        }
+
+        function toggleAdminButtons() {
+            const buttons = ['add-member-btn', 'add-flower-btn', 'add-competition-btn', 'add-guild-btn'];
+            buttons.forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.disabled = !isAuthenticated;
+            });
+        }
+
+        async function loadData() {
+            try {
+                const response = await fetch(`${API_URL}?action=getData`);
+                const data = await response.json();
+                
+                members = data.members || [];
+                flowers = data.flowers || [];
+                competitions = data.competitions || [];
+                
+                if (data.guilds) {
+                    if (Array.isArray(data.guilds)) {
+                        guilds = data.guilds;
+                    } else if (typeof data.guilds === 'object') {
+                        guilds = Object.values(data.guilds);
+                    } else {
+                        guilds = [];
+                    }
+                } else {
+                    guilds = [];
+                }
+                guilds = guilds.map(g => g ? String(g).trim() : "").filter(g => g !== "");
+
+                updateGuildDropdowns();
+                renderAll();
+            } catch (error) {
+                console.error("載入雲端資料失敗:", error);
+                alert("無法從 GOOGLE 雲端載入資料，請確認後端設定是否正確。");
+            }
+        }
+
+        function renderAll() {
+            renderMembers();
+            renderFlowers();
+            renderCompetitions();
+            renderGuildManager();
+        }
+
+        function renderMembers() {
+            const tbody = document.getElementById('members-table');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (members.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#9ca3af; padding: 20px;">無成員資料</td></tr>';
+                return;
+            }
+
+            const searchName = document.getElementById('search-member-name').value.toLowerCase().trim();
+            const filterGuild = document.getElementById('search-member-guild').value;
+
+            const sortedMembers = [...members].sort((a, b) => {
+                const nameA = a.gameName || '';
+                const nameB = b.gameName || '';
+                return nameA.localeCompare(nameB, 'zh-TW');
+            });
+
+            sortedMembers.forEach(m => {
+                if (searchName && !m.gameName.toLowerCase().includes(searchName)) return;
+                if (filterGuild && m.guildName !== filterGuild) return;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <span class="clickable-link" onclick="showMemberDetail(${m.id})">
+                            ${m.gameName || '未命名'}
+                        </span>
+                    </td>
+                    <td>${m.gameId || ''}</td>
+                    <td>${m.guildName || '無'}</td>
+                    <td class="center" style="color: #2563eb; font-weight: 500;">
+                        ${m.ownedFlowers ? m.ownedFlowers.length : 0} 朵
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <button class="edit-btn" onclick="editMember(${m.id})" title="編輯" ${!isAuthenticated ? 'disabled' : ''}>✏️</button>
+                            <button class="delete-btn" onclick="deleteMember(${m.id})" title="刪除" ${!isAuthenticated ? 'disabled' : ''}>🗑️</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function saveDataToCloud(type, dataContent) {
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ type: type, content: dataContent })
+                });
+                await loadData();
+            } catch (error) {
+                console.error("儲儲失敗:", error);
+                alert("儲存資料至雲端失敗。");
+            }
+        }
+
+        function searchTable(type) {
+            if (type === 'members') {
+                renderMembers();
+            }
+        }
+
+        function updateGuildDropdowns() {
+            const select = document.getElementById('search-member-guild');
+            if (!select) return;
+            select.innerHTML = '<option value="">全部公會</option>';
+            guilds.forEach(g => {
+                select.innerHTML += `<option value="${g}">${g}</option>`;
+            });
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+        }
+
+        function showMemberDetail(id) {
+            const member = members.find(m => m.id === id);
+            if (!member) return;
+            
+            document.getElementById('detail-modal-title').textContent = `${member.gameName} 的詳細花朵清單`;
+            const content = document.getElementById('detail-modal-content');
+            content.innerHTML = '';
+            
+            if (member.ownedFlowers && member.ownedFlowers.length > 0) {
+                member.ownedFlowers.forEach(f => {
+                    content.innerHTML += `<span class="flower-tag" style="font-size:14px; padding:4px 12px; margin:6px;">🌹 ${f}</span>`;
+                });
+            } else {
+                content.innerHTML = '<p style="color:#6b7280; text-align:center; padding:20px;">目前尚無擁有任何花朵。</p>';
+            }
+            
+            document.getElementById('detail-modal').classList.add('show');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.remove('show');
+        }
+
+        function showMemberForm(memberId = null) {
+            if (!isAuthenticated) return;
+            
+            const tbody = document.getElementById('members-table');
+            const existingForm = tbody.querySelector('.form-row');
+            if (existingForm) existingForm.remove();
+
+            const isEdit = memberId !== null;
+            const member = isEdit ? members.find(m => m.id === memberId) : null;
+            
+            const formRow = document.createElement('tr');
+            formRow.className = 'form-row';
+            
+            let guildOptions = '<option value="">請選擇公會</option>';
+            guilds.forEach(g => {
+                guildOptions += `<option value="${g}" ${member && member.guildName === g ? 'selected' : ''}>${g}</option>`;
+            });
+
+            let flowerCheckboxes = '';
+            flowers.forEach(f => {
+                const checked = member && member.ownedFlowers && member.ownedFlowers.includes(f.name) ? 'checked' : '';
+                flowerCheckboxes += `
+                    <label style="display:inline-flex; align-items:center; gap:4px; margin-right:12px; margin-bottom:8px; font-size:14px; cursor:pointer;">
+                        <input type="checkbox" name="form-member-flowers" value="${f.name}" ${checked}> ${f.name}
+                    </label>
+                `;
+            });
+
+            formRow.innerHTML = `
+                <td colspan="5">
+                    <div class="form-container">
+                        <form onsubmit="saveMember(event, ${memberId})">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>遊戲名稱</label>
+                                    <input type="text" id="member-gameName" value="${member ? member.gameName : ''}" required ${isEdit ? 'disabled' : ''}>
+                                </div>
+                                <div class="form-group">
+                                    <label>遊戲 ID</label>
+                                    <input type="text" id="member-gameId" value="${member ? (member.gameId || '') : ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label>所屬公會</label>
+                                    <select id="member-guild" required>${guildOptions}</select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label style="margin-bottom:8px;">擁有花朵</label>
+                                <div style="background:white; border:1px solid #d1d5db; border-radius:6px; padding:12px; max-height:120px; overflow-y:auto;">
+                                    ${flowerCheckboxes || '<span style="color:#9ca3af; font-size:13px;">目前無可用花朵，請先至花朵管理新增</span>'}
+                                </div>
+                            </div>
+                            <div class="form-buttons">
+                                <button type="button" class="form-cancel-btn" onclick="renderMembers()">取消</button>
+                                <button type="submit" class="save-btn">儲存</button>
+                            </div>
+                        </form>
+                    </div>
+                </td>
+            `;
+
+            if (isEdit) {
+                const rows = tbody.getElementsByTagName('tr');
+                let replaced = false;
+                for (let i = 0; i < rows.length; i++) {
+                    if (member && rows[i].innerHTML.includes(`editMember(${member.id})`)) {
+                        rows[i].replaceWith(formRow);
+                        replaced = true;
+                        break;
+                    }
+                }
+                if (!replaced) tbody.insertBefore(formRow, tbody.firstChild);
+            } else {
+                tbody.insertBefore(formRow, tbody.firstChild);
+            }
+        }
+
+        function editMember(id) {
+            showMemberForm(id);
+        }
+
+        function saveMember(event, id) {
+            event.preventDefault();
+            if (!isAuthenticated) return;
+
+            const nameInput = document.getElementById('member-gameName');
+            const gameIdInput = document.getElementById('member-gameId');
+            const guildInput = document.getElementById('member-guild');
+            const flowerCbs = document.querySelectorAll('input[name="form-member-flowers"]:checked');
+            
+            const newName = nameInput.value.trim();
+            const ownedFlowers = Array.from(flowerCbs).map(cb => cb.value);
+
+            if (id) {
+                const index = members.findIndex(m => m.id === id);
+                if (index === -1) return;
+                
+                const oldName = members[index].gameName;
+
+                members[index] = { 
+                    ...members[index], 
+                    gameName: newName,
+                    gameId: gameIdInput.value.trim(), 
+                    guildName: guildInput.value, 
+                    ownedFlowers: ownedFlowers 
+                };
+
+                if (oldName !== newName) {
+                    competitions.forEach(c => {
+                        if (c.memberName === oldName) c.memberName = newName;
+                    });
+                    saveDataToCloud('competitions', competitions);
+                }
+            } else {
+                if (members.some(m => m.gameName.toLowerCase() === newName.toLowerCase())) {
+                    alert('此遊戲名稱已存在！');
+                    return;
+                }
+                const newId = members.length > 0 ? Math.max(...members.map(m => m.id)) + 1 : 1;
+                members.push({ id: newId, gameName: newName, gameId: gameIdInput.value.trim(), guildName: guildInput.value, ownedFlowers });
+            }
+
+            saveDataToCloud('members', members);
+        }
+
+        function deleteMember(id) {
+            if (!isAuthenticated) return;
+            const member = members.find(m => m.id === id);
+            if (!member) return;
+
+            if (confirm(`確定要刪除成員「${member.gameName}」嗎？`)) {
+                members = members.filter(m => m.id !== id);
+                saveDataToCloud('members', members);
+            }
+        }
+
+        function renderFlowers() {
+            const grid = document.getElementById('flowers-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            flowers.forEach((f, index) => {
+                let ownerCount = 0;
+                members.forEach(m => {
+                    if (m.ownedFlowers && m.ownedFlowers.includes(f.name)) ownerCount++;
+                });
+
+                const card = document.createElement('div');
+                card.className = 'flower-card';
+                card.innerHTML = `
+                    <div class="flower-icon">🌹</div>
+                    <div class="flower-name">${f.name}</div>
+                    <div class="flower-count">擁有者人數: ${ownerCount} 人</div>
+                    <div class="flower-actions">
+                        <button onclick="openDistributeModal(${index})" ${!isAuthenticated ? 'disabled' : ''}>👥 分配</button>
+                        <button class="delete-btn" onclick="deleteFlower(${index})" ${!isAuthenticated ? 'disabled' : ''}>🗑️</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function showFlowerForm() {
+            if (!isAuthenticated) return;
+            const grid = document.getElementById('flowers-grid');
+            const existingForm = document.getElementById('flower-form-card');
+            if (existingForm) existingForm.remove();
+
+            const card = document.createElement('div');
+            card.className = 'flower-card';
+            card.id = 'flower-form-card';
+            card.innerHTML = `
+                <form onsubmit="saveFlower(event)">
+                    <div class="form-group" style="text-align:left;">
+                        <label>花朵名稱</label>
+                        <input type="text" id="form-flower-name" required placeholder="例如：黃金玫瑰...">
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" class="form-cancel-btn" onclick="renderFlowers()">取消</button>
+                        <button type="submit" class="save-btn">儲存</button>
+                    </div>
+                </form>
+            `;
+            grid.insertBefore(card, grid.firstChild);
+        }
+
+        function saveFlower(event) {
+            event.preventDefault();
+            if (!isAuthenticated) return;
+
+            const name = document.getElementById('form-flower-name').value.trim();
+            if (flowers.some(f => f.name === name)) {
+                alert('此花朵名稱已存在！');
+                return;
+            }
+            flowers.push({ name: name });
+            saveDataToCloud('flowers', flowers);
+        }
+
+        function deleteFlower(index) {
+            if (!isAuthenticated) return;
+            const flowerName = flowers[index].name;
+            if (confirm(`確定要刪除花朵「${flowerName}」嗎？`)) {
+                members.forEach(m => {
+                    if (m.ownedFlowers) m.ownedFlowers = m.ownedFlowers.filter(f => f !== flowerName);
+                });
+                flowers.splice(index, 1);
+                saveDataToCloud('flowers', flowers);
+                saveDataToCloud('members', members);
+            }
+        }
+
+        function openDistributeModal(flowerIndex) {
+            const flower = flowers[flowerIndex];
+            document.getElementById('modal-title').textContent = `分配「${flower.name}」的擁有者`;
+            const list = document.getElementById('distribute-list');
+            list.innerHTML = '';
+            document.getElementById('toggle-all-dist').checked = false;
+
+            members.forEach((m, mIndex) => {
+                const hasFlower = m.ownedFlowers && m.ownedFlowers.includes(flower.name);
+                const label = document.createElement('label');
+                label.className = 'checkbox-item';
+                label.innerHTML = `
+                    <input type="checkbox" data-member-index="${mIndex}" ${hasFlower ? 'checked' : ''}>
+                    <span>${m.gameName} (${m.guildName || '無公會'})</span>
+                `;
+                list.appendChild(label);
+            });
+
+            document.getElementById('modal-save-btn').onclick = () => saveDistribution(flowerIndex);
+            document.getElementById('distribute-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('distribute-modal').classList.remove('show');
+        }
+
+        function saveDistribution(flowerIndex) {
+            const flower = flowers[flowerIndex];
+            const list = document.getElementById('distribute-list');
+            const checkboxes = list.querySelectorAll('input[type="checkbox"]');
+            let isUpdated = false;
+
+            checkboxes.forEach(cb => {
+                const mIndex = parseInt(cb.getAttribute('data-member-index'));
+                const shouldHave = cb.checked;
+                if (!members[mIndex].ownedFlowers) members[mIndex].ownedFlowers = [];
+                const actuallyHas = members[mIndex].ownedFlowers.includes(flower.name);
+
+                if (shouldHave && !actuallyHas) {
+                    members[mIndex].ownedFlowers.push(flower.name);
+                    isUpdated = true;
+                } else if (!shouldHave && actuallyHas) {
+                    members[mIndex].ownedFlowers = members[mIndex].ownedFlowers.filter(f => f !== flower.name);
+                    isUpdated = true;
+                }
+            });
+
+            if (isUpdated) {
+                saveDataToCloud('members', members);
+                renderFlowers();
+                renderMembers();
+                closeModal();
+                alert(`已成功更新「${flower.name}」的擁有者名單！`);
+            } else {
+                closeModal();
+            }
+        }
+
+        function filterDistributeList(input) {
+            const filter = input.value.toLowerCase().trim();
+            const list = document.getElementById('distribute-list');
+            const labels = list.getElementsByTagName('label');
+            for (let label of labels) {
+                const text = label.textContent.toLowerCase();
+                label.style.display = text.includes(filter) ? '' : 'none';
+            }
+        }
+
+        function toggleAllDistribute(checked) {
+            const list = document.getElementById('distribute-list');
+            const labels = list.getElementsByTagName('label');
+            for (let label of labels) {
+                if (label.style.display !== 'none') {
+                    const cb = label.querySelector('input[type="checkbox"]');
+                    if (cb) cb.checked = checked;
+                }
+            }
+        }
+
+        function renderCompetitions() {
+            const tbody = document.getElementById('competitions-table');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (competitions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#9ca3af; padding: 20px;">目前尚無競賽紀錄</td></tr>';
+                return;
+            }
+
+            competitions.forEach((c, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${c.date || ''}</td>
+                    <td>${c.memberName || ''}</td>
+                    <td>${c.flowerName || ''}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="delete-btn" onclick="deleteCompetition(${index})" title="刪除" ${!isAuthenticated ? 'disabled' : ''}>🗑️</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function showCompetitionForm() {
+            if (!isAuthenticated) return;
+            const tbody = document.getElementById('competitions-table');
+            const existingForm = tbody.querySelector('.form-row');
+            if (existingForm) existingForm.remove();
+
+            const formRow = document.createElement('tr');
+            formRow.className = 'form-row';
+
+            let memberOptions = '<option value="">請選擇成員</option>';
+            members.forEach(m => {
+                memberOptions += `<option value="${m.gameName}">${m.gameName}</option>`;
+            });
+
+            let flowerOptions = '<option value="">請選擇花朵</option>';
+            flowers.forEach(f => {
+                flowerOptions += `<option value="${f.name}">${f.name}</option>`;
+            });
+
+            const today = new Date().toISOString().split('T')[0];
+
+            formRow.innerHTML = `
+                <td colspan="4">
+                    <div class="form-container">
+                        <form onsubmit="saveCompetition(event)">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>日期</label>
+                                    <input type="date" id="comp-date" value="${today}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>成員名稱</label>
+                                    <select id="comp-member" required>${memberOptions}</select>
+                                </div>
+                                <div class="form-group">
+                                    <label>使用花朵</label>
+                                    <select id="comp-flower" required>${flowerOptions}</select>
+                                </div>
+                            </div>
+                            <div class="form-buttons">
+                                <button type="button" class="form-cancel-btn" onclick="renderCompetitions()">取消</button>
+                                <button type="submit" class="save-btn">儲存</button>
+                            </div>
+                        </form>
+                    </div>
+                </td>
+            `;
+            tbody.insertBefore(formRow, tbody.firstChild);
+        }
+
+        function saveCompetition(event) {
+            event.preventDefault();
+            if (!isAuthenticated) return;
+
+            const date = document.getElementById('comp-date').value;
+            const memberName = document.getElementById('comp-member').value;
+            const flowerName = document.getElementById('comp-flower').value;
+
+            competitions.push({ date, memberName, flowerName });
+            saveDataToCloud('competitions', competitions);
+        }
+
+        function deleteCompetition(index) {
+            if (!isAuthenticated) return;
+            if (confirm('確定要刪除此筆競賽紀錄嗎？')) {
+                competitions.splice(index, 1);
+                saveDataToCloud('competitions', competitions);
+            }
+        }
+
+        function renderGuildManager() {
+            const grid = document.getElementById('guilds-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            guilds.forEach((g, index) => {
+                const memberCount = members.filter(m => m.guildName === g).length;
+                const card = document.createElement('div');
+                card.className = 'guild-card';
+                card.innerHTML = `
+                    <div class="guild-name">🏰 ${g}</div>
+                    <div class="guild-info">
+                        <span>當前人數: ${memberCount} 人</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="delete-btn" onclick="deleteGuild(${index})" ${!isAuthenticated ? 'disabled' : ''}>🗑️ 刪除公會</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function showGuildForm() {
+            if (!isAuthenticated) return;
+            const grid = document.getElementById('guilds-grid');
+            const existingForm = document.getElementById('guild-form-card');
+            if (existingForm) existingForm.remove();
+
+            const card = document.createElement('div');
+            card.className = 'guild-card';
+            card.id = 'guild-form-card';
+            card.innerHTML = `
+                <form onsubmit="saveGuild(event)">
+                    <div class="form-group">
+                        <label>公會名稱</label>
+                        <input type="text" id="form-guild-name" required placeholder="例如：第一公會...">
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" class="form-cancel-btn" onclick="renderGuildManager()">取消</button>
+                        <button type="submit" class="save-btn">儲存</button>
+                    </div>
+                </form>
+            `;
+            grid.insertBefore(card, grid.firstChild);
+        }
+
+        function saveGuild(event) {
+            event.preventDefault();
+            if (!isAuthenticated) return;
+
+            const name = document.getElementById('form-guild-name').value.trim();
+            if (guilds.includes(name)) {
+                alert('公會名稱已存在！');
+                return;
+            }
+            guilds.push(name);
+            saveDataToCloud('guilds', guilds);
+        }
+
+        function deleteGuild(index) {
+            if (!isAuthenticated) return;
+            const guildName = guilds[index];
+            if (confirm(`確定要刪除公會「${guildName}」嗎？`)) {
+                members.forEach(m => {
+                    if (m.guildName === guildName) m.guildName = '';
+                });
+                guilds.splice(index, 1);
+                saveDataToCloud('guilds', guilds);
+                saveDataToCloud('members', members);
+            }
+        }
+
+        window.onload = function() {
+            init();
+        };
+    </script>
+</body>
+</html>
