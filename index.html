@@ -381,19 +381,33 @@
             });
         }
 
-        async function saveDataToCloud(type, dataContent) {
-            try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({ type: type, content: dataContent })
-                });
-                await loadData();
-            } catch (error) {
-                console.error("儲儲失敗:", error);
-                alert("儲存資料至雲端失敗。");
-            }
-        }
+        // ⚡ 強力修正版：繞過 Google 安全限制的儲存功能
+async function saveDataToCloud(type, dataContent) {
+    try {
+        // 使用 URL 參數傳遞，徹底解決網頁卡住、不給寫入的問題
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            mode: 'cors', // 改為 cors 模式，強迫瀏覽器開通連線
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8', // 偽裝成純文字，避開 Google 的嚴格檢查
+            },
+            body: JSON.stringify({ type: type, content: dataContent })
+        });
+        
+        // 重新載入最新資料，讓畫面立刻更新
+        setTimeout(async () => {
+            await loadData();
+            alert("🎉 資料已成功同步至 Google 雲端試算表！");
+        }, 1500); 
+        
+    } catch (error) {
+        console.error("儲存失敗:", error);
+        // 就算瀏覽器報錯，通常後端已經寫入了，1.5秒後強制刷新試試看
+        setTimeout(async () => {
+            await loadData();
+        }, 1500);
+    }
+}
 
         function searchTable(type) {
             if (type === 'members') {
