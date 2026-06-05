@@ -220,10 +220,27 @@
         let isAuthenticated = false;
         let currentTab = 'members';
 
-        async function init() {
-            checkLoginStatus();
-            await loadData();
-        }
+        async function loadData() {
+    try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbw17vKS8EFwiI_B2JSUNqO2N89wC9zexjpOGv1CWnd945L8IGcQ5RnWYrQph4DmIbSI/exec"); // 確保這是那個會顯示 JSON 的正確網址
+        const data = await response.json();
+        
+        console.log("從 Google 抓到的原始資料:", data); // 按 F12 在 Console 看這行是否正確顯示
+
+        // 確保把資料指派給全域變數，或是你的渲染函數使用的變數
+        window.members = data.members || [];
+        window.flowers = data.flowers || [];
+        window.competitions = data.competitions || [];
+        window.guilds = data.guilds || [];
+        
+        // 執行渲染畫面的函數 (請確認這些函數名稱是否跟你的程式碼一樣)
+        if (typeof renderMembers === 'function') renderMembers();
+        if (typeof renderFlowers === 'function') renderFlowers();
+        
+    } catch (error) {
+        console.error("網頁讀取資料失敗，請檢查 F12 的 Network 分頁:", error);
+    }
+}
 
         function checkLoginStatus() {
             const token = localStorage.getItem('admin_token');
